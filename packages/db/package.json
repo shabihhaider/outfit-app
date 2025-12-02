@@ -1,1 +1,17 @@
-{"name": "@outfit/db", "version": "0.0.0", "main": "./index.ts", "types": "./index.ts"}
+{
+    "name": "@outfit/db",
+    "version": "0.0.0",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "scripts": {
+        "test": "tsx test.ts"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.86.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "dotenv": "^17.2.3",
+        "tsx": "^4.21.0"
+    }
+}
