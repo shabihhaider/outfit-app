@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    types: [opened, synchronize]
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Install pnpm FIRST (before node setup with cache)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      # Now setup Node with pnpm cache
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check Formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      # Exclude db package from type-check (needs Supabase types)
+      - name: Type Check
+        run: pnpm type-check --filter=!@outfit/db

@@ -1,1 +1,12 @@
-{ "extends": "./tsconfig.base.json", "compilerOptions": { "baseUrl": ".", "paths": { "@outfit/ui": ["packages/ui"], "@outfit/db": ["packages/db"], "@outfit/utils": ["packages/utils"], "@outfit/api-client": ["packages/api-client"] } } }
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@outfit/ui": ["packages/ui"],
+      "@outfit/db": ["packages/db"],
+      "@outfit/utils": ["packages/utils"],
+      "@outfit/api-client": ["packages/api-client"]
+    }
+  }
+}

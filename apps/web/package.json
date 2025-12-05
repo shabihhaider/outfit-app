@@ -1,1 +1,14 @@
-{"name": "@outfit/web", "version": "0.0.0", "private": true}
+{
+  "name": "@outfit/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Next.js app - to be configured in Sprint 2'",
+    "build": "echo 'Next.js build - to be configured in Sprint 2'",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "*"
+  }
+}

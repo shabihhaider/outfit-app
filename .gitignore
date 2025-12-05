@@ -46,3 +46,15 @@ android/app/release
 
 # Supabase
 supabase/.temp
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Modal
+.modal/

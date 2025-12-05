@@ -1,1 +1,14 @@
-{"name": "@outfit/mobile", "version": "0.0.0", "private": true}
+{
+  "name": "@outfit/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Expo app - to be configured in Sprint 2'",
+    "build": "echo 'Expo build - to be configured in Sprint 2'",
+    "lint": "eslint . --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "*"
+  }
+}

@@ -1,1 +1,14 @@
-{"name": "@outfit/api", "version": "0.0.0", "private": true}
+{
+  "name": "@outfit/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'API - to be configured in Sprint 2'",
+    "build": "echo 'API build - to be configured in Sprint 2'",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "*"
+  }
+}
