@@ -21,4 +21,7 @@ config.resolver.nodeModulesPaths = [
 // 3. Force Metro to resolve (sub)dependencies only from the nodeModulesPaths
 config.resolver.disableHierarchicalLookup = true;
 
+// 4. Enable package.json exports support for subpath imports (styleq, etc.)
+config.resolver.unstable_enablePackageExports = true;
+
 module.exports = config;
