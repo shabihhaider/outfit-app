@@ -149,10 +149,78 @@ pnpm type-check --filter=!@outfit/db
 
 ### "Module not found" errors
 
+If you encounter "Unable to resolve module" errors, try these steps:
+
 ```bash
-# Clear caches and reinstall
+# 1. Clear all caches
+cd apps/mobile
+npx expo start --clear
+
+# 2. If still failing, clear node_modules and reinstall
+rm -rf node_modules
+cd ../..
 pnpm clean
 pnpm install
+
+# 3. Restart Metro bundler
+cd apps/mobile
+npx expo start --clear
+```
+
+**Common missing dependencies that may need manual installation:**
+```bash
+cd apps/mobile
+pnpm add abort-controller stacktrace-parser @ungap/structured-clone \
+  base64-js query-string nanoid fast-deep-equal regenerator-runtime
+```
+
+### Metro Config TypeScript Errors
+
+If you see TypeScript errors in `metro.config.js`:
+
+**Error:** "The inferred type of config cannot be named without a reference..."
+
+**Solution:** For NativeWind v4, do NOT use `withNativeWind` wrapper:
+
+```javascript
+// ❌ Wrong (NativeWind v3 syntax)
+const { withNativeWind } = require("nativewind/metro");
+module.exports = withNativeWind(config, { input: "./global.css" });
+
+// ✅ Correct (NativeWind v4 syntax)
+module.exports = config;
+```
+
+The NativeWind preset should be in `tailwind.config.js` instead:
+```javascript
+// tailwind.config.js
+presets: [require("nativewind/preset")]
+```
+
+### Supabase Storage Errors on Web
+
+**Error:** "ExpoSecureStore.default.getValueWithKeyAsync is not a function"
+
+**Cause:** `expo-secure-store` doesn't work on web platform.
+
+**Solution:** This is already fixed in `lib/supabase.ts` with platform detection:
+```typescript
+// Platform-specific storage adapter
+const ExpoSecureStoreAdapter = {
+    getItem: (key: string) => {
+        if (Platform.OS === "web") {
+            return AsyncStorage.getItem(key);  // Web uses AsyncStorage
+        }
+        return SecureStore.getItemAsync(key);  // Native uses SecureStore
+    },
+    // ...
+};
+```
+
+If you still see this error, ensure `@react-native-async-storage/async-storage` is installed:
+```bash
+cd apps/mobile
+pnpm add @react-native-async-storage/async-storage
 ```
 
 ### Database types are missing
@@ -179,17 +247,60 @@ cd services/ml
 python -m modal setup   # Re-authenticate
 ```
 
-### Port already in use
+### Port already in use (Port 8081)
+
+**Problem:** Metro bundler can't start because port 8081 is in use.
+
+**Solution:**
 
 ```bash
-# Find and kill process on port 3000 (Windows)
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
+# Windows - Kill all Node processes
+taskkill /F /IM node.exe /T
 
-# Mac/Linux
-lsof -i :3000
-kill -9 <PID>
+# macOS/Linux
+killall node
+
+# Then restart Expo
+cd apps/mobile
+npx expo start --clear
 ```
+
+### NativeWind Styles Not Applying
+
+**Problem:** Tailwind CSS classes not working.
+
+**Checklist:**
+1. ✅ `global.css` imported in `app/_layout.tsx`:
+   ```typescript
+   import "../global.css";
+   ```
+
+2. ✅ `tailwind.config.js` has NativeWind v4 preset:
+   ```javascript
+   presets: [require("nativewind/preset")]
+   ```
+
+3. ✅ Metro cache is cleared:
+   ```bash
+   npx expo start --clear
+   ```
+
+### Bundling Fails with Dependency Errors
+
+If bundling fails with missing dependencies, they need to be installed in the mobile app:
+
+```bash
+cd apps/mobile
+
+# Install the missing package
+pnpm add <package-name>
+
+# Clear cache and restart
+npx expo start --clear
+```
+
+**Already Installed Dependencies (57 total):**
+Core dependencies for React Native, Expo, Supabase, and NativeWind are pre-installed. If you encounter issues, verify all dependencies in `apps/mobile/package.json`.
 
 ## 📚 Next Steps
 

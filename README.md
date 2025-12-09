@@ -12,6 +12,32 @@ An AI-powered wardrobe assistant that helps users organize their closet and get 
 - 🛍️ **Smart Shopping** - Product recommendations that match your existing wardrobe
 - 🔄 **Cross-Platform** - Available on iOS, Android, and Web
 
+## 🎯 Current Status
+
+### ✅ Completed (Sprint 1 - Task 1.1)
+- ✅ Authentication Foundation
+  - ✅ Supabase client configuration with platform-specific storage
+  - ✅ Auth context provider with session management
+  - ✅ Platform detection (Native: SecureStore, Web: AsyncStorage)
+  - ✅ Welcome screen with routing
+  - ✅ Form validation schemas (Zod)
+  - ✅ TypeScript types for authentication
+  - ✅ Error boundary and toast notifications
+  - ✅ Expo Router v6 file-based routing
+  - ✅ NativeWind v4 styling setup
+
+### 🚧 In Progress
+- 🔄 Authentication UI (Task 1.2)
+  - Login screen
+  - Registration screen
+  - Password recovery
+
+### 📋 Upcoming
+- Profile management
+- Wardrobe upload & categorization
+- AI outfit recommendations
+- Weather-aware suggestions
+
 ## 🏗️ Tech Stack
 
 | Layer | Technology |
@@ -45,35 +71,60 @@ outfit-app/
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm 8+ (`npm install -g pnpm`)
-- Python 3.11+ (for ML services)
+- **Node.js** 20+ (Recommended: 20.x LTS)
+- **pnpm** 8+ - Install: `npm install -g pnpm`
+- **Expo CLI** - Install: `npm install -g expo-cli`
+- **Android Studio** (for Android development) or **Xcode** (for iOS development)
+- **Python** 3.11+ (for ML services)
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/shabihhaider/outfit-app.git
+git clone https://github.com/yourusername/outfit-app.git
 cd outfit-app
 
-# Install dependencies
+# Install dependencies (this may take a few minutes)
 pnpm install
 
 # Set up environment variables
-cp .env.example apps/web/.env.local
-cp .env.example apps/mobile/.env.local
-# Edit the .env.local files with your actual credentials
+cp apps/mobile/.env.example apps/mobile/.env.local
+# Edit apps/mobile/.env.local with your Supabase credentials:
+# EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+# EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 ### Development
 
+**Mobile App:**
 ```bash
-# Start all apps (web + mobile)
-pnpm dev
+# Navigate to mobile app
+cd apps/mobile
 
-# Start specific app
+# Start Expo development server
+npx expo start
+
+# Options:
+# - Press 'a' for Android emulator
+# - Press 'i' for iOS simulator
+# - Press 'w' for web browser
+# - Scan QR code with Expo Go app on your phone
+```
+
+**Web App:**
+```bash
+# Start web development server
 pnpm dev --filter=@outfit/web
-pnpm dev --filter=@outfit/mobile
+
+# Or from root:
+cd apps/web
+pnpm dev
+```
+
+**All Apps (Turborepo):**
+```bash
+# Start all apps simultaneously
+pnpm dev
 ```
 
 ### Available Scripts
