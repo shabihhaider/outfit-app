@@ -13,6 +13,7 @@
     "@expo/metro-runtime": "^6.1.2",
     "@hookform/resolvers": "3.9.0",
     "@jest/schemas": "30.0.5",
+    "@radix-ui/react-slot": "^1.2.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native/assets-registry": "^0.82.1",
     "@react-native/js-polyfills": "^0.82.1",
@@ -84,8 +85,10 @@
     "shallowequal": "^1.1.0",
     "stacktrace-parser": "^0.1.11",
     "styleq": "^0.2.1",
+    "text-encoding-polyfill": "^0.6.7",
     "use-latest-callback": "^0.3.3",
     "use-sync-external-store": "^1.6.0",
+    "webidl-conversions": "^8.0.0",
     "whatwg-fetch": "^3.6.20",
     "whatwg-url-without-unicode": "8.0.0-3",
     "zod": "3.24.0"

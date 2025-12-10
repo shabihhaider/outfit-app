@@ -50,6 +50,9 @@ importers:
       '@jest/schemas':
         specifier: 30.0.5
         version: 30.0.5
+      '@radix-ui/react-slot':
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@19.1.17)(react@19.1.0)
       '@react-native-async-storage/async-storage':
         specifier: ^2.2.0
         version: 2.2.0(react-native@0.81.5)
@@ -263,12 +266,18 @@ importers:
       styleq:
         specifier: ^0.2.1
         version: 0.2.1
+      text-encoding-polyfill:
+        specifier: ^0.6.7
+        version: 0.6.7
       use-latest-callback:
         specifier: ^0.3.3
         version: 0.3.3(react@19.1.0)
       use-sync-external-store:
         specifier: ^1.6.0
         version: 1.6.0(react@19.1.0)
+      webidl-conversions:
+        specifier: ^8.0.0
+        version: 8.0.0
       whatwg-fetch:
         specifier: ^3.6.20
         version: 3.6.20
@@ -2535,6 +2544,20 @@ packages:
 
   /@radix-ui/react-slot@1.2.3(@types/react@19.1.17)(react@19.1.0):
     resolution: {integrity: sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.17)(react@19.1.0)
+      '@types/react': 19.1.17
+      react: 19.1.0
+    dev: false
+
+  /@radix-ui/react-slot@1.2.4(@types/react@19.1.17)(react@19.1.0):
+    resolution: {integrity: sha512-Jl+bCv8HxKnlTLVrcDE8zTMJ09R9/ukw4qBs/oZClOfoQk/cOTbDn+NceXfV7j09YPVQUryJPHurafcSg6EVKA==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -7546,6 +7569,10 @@ packages:
       minimatch: 3.1.2
     dev: false
 
+  /text-encoding-polyfill@0.6.7:
+    resolution: {integrity: sha512-/DZ1XJqhbqRkCop6s9ZFu8JrFRwmVuHg4quIRm+ziFkR3N3ec6ck6yBvJ1GYeEQZhLVwRW0rZE+C3SSJpy0RTg==}
+    dev: false
+
   /text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
@@ -7895,6 +7922,11 @@ packages:
   /webidl-conversions@5.0.0:
     resolution: {integrity: sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==}
     engines: {node: '>=8'}
+    dev: false
+
+  /webidl-conversions@8.0.0:
+    resolution: {integrity: sha512-n4W4YFyz5JzOfQeA8oN7dUYpR+MBP3PIUsn2jLjWXwK5ASUzt0Jc/A5sAUZoCYFJRGF0FBKJ+1JjN43rNdsQzA==}
+    engines: {node: '>=20'}
     dev: false
 
   /whatwg-fetch@3.6.20:
