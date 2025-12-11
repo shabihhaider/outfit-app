@@ -1,21 +1,28 @@
-import { Redirect } from "expo-router";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { useAuth } from "../contexts/AuthContext";
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Redirect } from 'expo-router';
 
+import { useAuth } from '../contexts/AuthContext';
+
+/**
+ * Index screen - handles initial routing based on auth state
+ * Redirects to:
+ * - (auth)/welcome if not authenticated
+ * - (tabs) if authenticated
+ */
 export default function Index() {
-    const { user, isLoading } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
 
-    // Show loading screen while checking auth state
+    // Show loading while determining auth state
     if (isLoading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#2563eb" />
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#1e3a5f" />
             </View>
         );
     }
 
     // Redirect based on authentication status
-    if (user) {
+    if (isAuthenticated) {
         return <Redirect href="/(tabs)" />;
     }
 
@@ -23,10 +30,10 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-    loadingContainer: {
+    container: {
         flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#ffffff',
     },
 });

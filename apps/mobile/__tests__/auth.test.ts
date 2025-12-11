@@ -3,7 +3,7 @@
  * Run these in the Expo app console or React Native Debugger
  */
 
-import { loginSchema, registerSchema, passwordSchema, emailSchema, usernameSchema } from '../utils/validation';
+import { signInSchema, signUpSchema, passwordSchema, emailSchema, usernameSchema } from '../utils/validation';
 
 // Test 1: Email Validation
 console.log('=== Email Validation Tests ===');
@@ -60,10 +60,10 @@ try {
   console.log('✅ Too short username rejected');
 }
 
-// Test 4: Login Schema
-console.log('\n=== Login Schema Test ===');
+// Test 4: Sign In Schema (was Login)
+console.log('\n=== Sign In Schema Test ===');
 try {
-  loginSchema.parse({
+  signInSchema.parse({
     email: 'test@example.com',
     password: 'anypassword',
   });
@@ -72,14 +72,15 @@ try {
   console.error('❌ Valid login data failed');
 }
 
-// Test 5: Register Schema
-console.log('\n=== Register Schema Test ===');
+// Test 5: Sign Up Schema (was Register)
+console.log('\n=== Sign Up Schema Test ===');
 try {
-  registerSchema.parse({
+  signUpSchema.parse({
     email: 'test@example.com',
     username: 'testuser',
     password: 'Password123',
     confirmPassword: 'Password123',
+    acceptTerms: true,
   });
   console.log('✅ Valid registration data passes');
 } catch (e) {
@@ -87,11 +88,12 @@ try {
 }
 
 try {
-  registerSchema.parse({
+  signUpSchema.parse({
     email: 'test@example.com',
     username: 'testuser',
     password: 'Password123',
     confirmPassword: 'DifferentPassword',
+    acceptTerms: true,
   });
   console.error('❌ Mismatched passwords passed (should fail)');
 } catch (e) {

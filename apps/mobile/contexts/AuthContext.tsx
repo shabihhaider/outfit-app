@@ -1,19 +1,9 @@
-import React, { createContext, useContext, ReactNode } from "react";
-import { User, Session, AuthError } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
-import { useSupabaseAuth } from "../hooks/useSupabaseAuth";
-import Toast from "react-native-toast-message";
+import React, { createContext, useContext, useCallback, useState, useMemo, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
+import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
+import { AuthContextType, AuthResult, UserMetadata } from '../types/auth.types';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  isLoading: boolean;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: AuthError | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signOut: () => Promise<{ error: AuthError | null }>;
-  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
-}
-
+// Create context with undefined default (will be set by provider)
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -21,200 +11,241 @@ interface AuthProviderProps {
 }
 
 /**
- * Auth Provider Component
- * Wraps the app to provide authentication context
+ * Authentication Provider Component
+ * Wraps the app and provides authentication state and methods
  */
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { session, isLoading, user } = useSupabaseAuth();
+  const { user, session, isLoading: isAuthLoading, isInitialized } = useSupabaseAuth();
+  const [isOperationLoading, setIsOperationLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Combined loading state
+  const isLoading = isAuthLoading || isOperationLoading || !isInitialized;
+
+  // Clear error helper
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   /**
-   * Sign up a new user with email and password
-   * Also creates a profile entry in the database
+   * Sign up with email and password
    */
-  const signUp = async (
+  const signUp = useCallback(async (
     email: string,
     password: string,
-    username: string
-  ): Promise<{ error: AuthError | null }> => {
+    metadata?: UserMetadata
+  ): Promise<AuthResult> => {
     try {
-      // Sign up with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
+      setIsOperationLoading(true);
+      setError(null);
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            username,
-          },
+          data: metadata,
+          emailRedirectTo: undefined, // Handle in-app
         },
       });
 
-      if (error) {
-        console.error("Sign up error:", error);
-        Toast.show({
-          type: "error",
-          text1: "Sign Up Failed",
-          text2: error.message,
-        });
-        return { error };
+      if (signUpError) {
+        const errorMessage = getAuthErrorMessage(signUpError.message);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
       }
 
-      if (data.user) {
-        // Create profile in database
-        const { error: profileError } = await supabase.from("profiles").insert({
-          id: data.user.id,
-          username,
-          email,
-        });
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          // Note: User is created in auth but profile failed
-          // Consider handling this edge case
-        }
-
-        Toast.show({
-          type: "success",
-          text1: "Account Created!",
-          text2: "Welcome to Outfit App",
-        });
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // User created but needs to verify email
+        return {
+          success: true,
+          data: { user: data.user },
+          error: 'Please check your email to verify your account.',
+        };
       }
 
-      return { error: null };
-    } catch (error) {
-      console.error("Unexpected sign up error:", error);
-      Toast.show({
-        type: "error",
-        text1: "Sign Up Failed",
-        text2: "An unexpected error occurred",
-      });
-      return { error: error as AuthError };
+      return {
+        success: true,
+        data: { user: data.user ?? undefined, session: data.session ?? undefined },
+      };
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred during sign up.';
+      setError(errorMessage);
+      console.error('[AuthContext] Sign up error:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
     }
-  };
+  }, []);
 
   /**
-   * Sign in an existing user with email and password
+   * Sign in with email and password
    */
-  const signIn = async (
+  const signIn = useCallback(async (
     email: string,
     password: string
-  ): Promise<{ error: AuthError | null }> => {
+  ): Promise<AuthResult> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      setIsOperationLoading(true);
+      setError(null);
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error("Sign in error:", error);
-        Toast.show({
-          type: "error",
-          text1: "Sign In Failed",
-          text2: error.message,
-        });
-        return { error };
+      if (signInError) {
+        const errorMessage = getAuthErrorMessage(signInError.message);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
       }
 
-      Toast.show({
-        type: "success",
-        text1: "Welcome Back!",
-        text2: "You've successfully signed in",
-      });
-
-      return { error: null };
-    } catch (error) {
-      console.error("Unexpected sign in error:", error);
-      Toast.show({
-        type: "error",
-        text1: "Sign In Failed",
-        text2: "An unexpected error occurred",
-      });
-      return { error: error as AuthError };
+      return {
+        success: true,
+        data: { user: data.user, session: data.session },
+      };
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred during sign in.';
+      setError(errorMessage);
+      console.error('[AuthContext] Sign in error:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
     }
-  };
+  }, []);
 
   /**
-   * Sign out the current user
+   * Sign out current user
    */
-  const signOut = async (): Promise<{ error: AuthError | null }> => {
+  const signOut = useCallback(async (): Promise<AuthResult> => {
     try {
-      const { error } = await supabase.auth.signOut();
+      setIsOperationLoading(true);
+      setError(null);
 
-      if (error) {
-        console.error("Sign out error:", error);
-        Toast.show({
-          type: "error",
-          text1: "Sign Out Failed",
-          text2: error.message,
-        });
-        return { error };
+      const { error: signOutError } = await supabase.auth.signOut();
+
+      if (signOutError) {
+        const errorMessage = getAuthErrorMessage(signOutError.message);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
       }
 
-      Toast.show({
-        type: "success",
-        text1: "Signed Out",
-        text2: "See you next time!",
-      });
-
-      return { error: null };
-    } catch (error) {
-      console.error("Unexpected sign out error:", error);
-      Toast.show({
-        type: "error",
-        text1: "Sign Out Failed",
-        text2: "An unexpected error occurred",
-      });
-      return { error: error as AuthError };
+      return { success: true };
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred during sign out.';
+      setError(errorMessage);
+      console.error('[AuthContext] Sign out error:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
     }
-  };
+  }, []);
 
   /**
-   * Send password reset email
+   * Request password reset email
    */
-  const resetPassword = async (email: string): Promise<{ error: AuthError | null }> => {
+  const resetPassword = useCallback(async (email: string): Promise<AuthResult> => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "outfitapp://reset-password",
+      setIsOperationLoading(true);
+      setError(null);
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: undefined, // Handle in-app with deep link
       });
 
-      if (error) {
-        console.error("Password reset error:", error);
-        Toast.show({
-          type: "error",
-          text1: "Reset Failed",
-          text2: error.message,
-        });
-        return { error };
+      if (resetError) {
+        const errorMessage = getAuthErrorMessage(resetError.message);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
       }
 
-      Toast.show({
-        type: "success",
-        text1: "Check Your Email",
-        text2: "Password reset link has been sent",
-      });
-
-      return { error: null };
-    } catch (error) {
-      console.error("Unexpected password reset error:", error);
-      Toast.show({
-        type: "error",
-        text1: "Reset Failed",
-        text2: "An unexpected error occurred",
-      });
-      return { error: error as AuthError };
+      return { success: true };
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred while sending reset email.';
+      setError(errorMessage);
+      console.error('[AuthContext] Reset password error:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
     }
-  };
+  }, []);
 
-  const value: AuthContextType = {
+  /**
+   * Update user's password (after reset or when logged in)
+   */
+  const updatePassword = useCallback(async (newPassword: string): Promise<AuthResult> => {
+    try {
+      setIsOperationLoading(true);
+      setError(null);
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        const errorMessage = getAuthErrorMessage(updateError.message);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+
+      return { success: true };
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred while updating password.';
+      setError(errorMessage);
+      console.error('[AuthContext] Update password error:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
+    }
+  }, []);
+
+  /**
+   * Manually refresh the session
+   */
+  const refreshSession = useCallback(async (): Promise<void> => {
+    try {
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('[AuthContext] Session refresh error:', refreshError.message);
+      }
+    } catch (err) {
+      console.error('[AuthContext] Session refresh error:', err);
+    }
+  }, []);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo<AuthContextType>(() => ({
     user,
     session,
     isLoading,
+    isAuthenticated: !!session && !!user,
+    error,
     signUp,
     signIn,
     signOut,
     resetPassword,
-  };
+    updatePassword,
+    refreshSession,
+    clearError,
+  }), [
+    user,
+    session,
+    isLoading,
+    error,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    updatePassword,
+    refreshSession,
+    clearError,
+  ]);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 /**
@@ -223,10 +254,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
  */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-
   return context;
 }
+
+/**
+ * Convert Supabase error messages to user-friendly messages
+ */
+function getAuthErrorMessage(message: string): string {
+  const errorMap: Record<string, string> = {
+    'Invalid login credentials': 'Invalid email or password. Please try again.',
+    'Email not confirmed': 'Please verify your email address before signing in.',
+    'User already registered': 'An account with this email already exists.',
+    'Password should be at least 6 characters': 'Password must be at least 8 characters long.',
+    'Email rate limit exceeded': 'Too many attempts. Please try again later.',
+    'Invalid email': 'Please enter a valid email address.',
+    'Signup disabled': 'New registrations are currently disabled.',
+    'Email link is invalid or has expired': 'This link has expired. Please request a new one.',
+  };
+
+  // Check for partial matches
+  for (const [key, value] of Object.entries(errorMap)) {
+    if (message.toLowerCase().includes(key.toLowerCase())) {
+      return value;
+    }
+  }
+
+  // Return original message if no match (consider logging unknown errors)
+  console.warn('[AuthContext] Unknown auth error:', message);
+  return message;
+}
+
+// Export types for convenience
+export type { AuthContextType, AuthResult, UserMetadata };

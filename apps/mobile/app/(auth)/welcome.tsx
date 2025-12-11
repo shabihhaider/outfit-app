@@ -1,5 +1,5 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import { Link, router } from "expo-router";
 import { SafeView } from "../../components/SafeView";
 
 export default function WelcomeScreen() {
@@ -20,21 +20,21 @@ export default function WelcomeScreen() {
                 </Text>
 
                 {/* Buttons */}
-                <Link href="/(auth)/register" asChild>
-                    <Pressable style={styles.primaryButton}>
-                        <Text style={styles.primaryButtonText}>
-                            Get Started
-                        </Text>
-                    </Pressable>
-                </Link>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        style={styles.primaryButton}
+                        onPress={() => router.push("/(auth)/register")}
+                    >
+                        <Text style={styles.primaryButtonText}>Get Started</Text>
+                    </TouchableOpacity>
 
-                <Link href="/(auth)/login" asChild>
-                    <Pressable style={styles.secondaryButton}>
-                        <Text style={styles.secondaryButtonText}>
-                            I already have an account
-                        </Text>
-                    </Pressable>
-                </Link>
+                    <TouchableOpacity
+                        style={styles.secondaryButton}
+                        onPress={() => router.push("/(auth)/login")}
+                    >
+                        <Text style={styles.secondaryButtonText}>I already have an account</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </SafeView>
     );
@@ -76,6 +76,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'center',
         marginBottom: 48,
+    },
+    buttonContainer: {
+        width: '100%',
+        gap: 16,
     },
     primaryButton: {
         width: '100%',
