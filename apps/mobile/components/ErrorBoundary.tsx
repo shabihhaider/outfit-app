@@ -1,6 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Pressable, ScrollView, StyleSheet, Platform, StatusBar } from "react-native";
 
 interface Props {
   children: ReactNode;
@@ -57,37 +56,37 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <SafeAreaView className="flex-1 bg-white">
-          <View className="flex-1 px-6 py-8">
+        <View style={styles.container}>
+          <View style={styles.content}>
             {/* Error Icon */}
-            <View className="items-center mb-6">
-              <View className="w-20 h-20 bg-red-100 rounded-full items-center justify-center mb-4">
-                <Text className="text-4xl">⚠️</Text>
+            <View style={styles.errorIconContainer}>
+              <View style={styles.errorIcon}>
+                <Text style={styles.errorEmoji}>⚠️</Text>
               </View>
-              <Text className="text-2xl font-bold text-gray-800 mb-2">
+              <Text style={styles.errorTitle}>
                 Oops! Something went wrong
               </Text>
-              <Text className="text-gray-600 text-center">
+              <Text style={styles.errorSubtitle}>
                 The app encountered an unexpected error.
               </Text>
             </View>
 
             {/* Error Details (only in development) */}
             {__DEV__ && this.state.error && (
-              <ScrollView className="flex-1 bg-gray-100 rounded-xl p-4 mb-4">
-                <Text className="text-sm font-bold text-red-600 mb-2">
+              <ScrollView style={styles.errorDetails}>
+                <Text style={styles.errorLabel}>
                   Error:
                 </Text>
-                <Text className="text-xs text-gray-800 mb-4">
+                <Text style={styles.errorText}>
                   {this.state.error.toString()}
                 </Text>
 
                 {this.state.errorInfo && (
                   <>
-                    <Text className="text-sm font-bold text-red-600 mb-2">
+                    <Text style={styles.errorLabel}>
                       Stack Trace:
                     </Text>
-                    <Text className="text-xs text-gray-800 font-mono">
+                    <Text style={styles.stackTrace}>
                       {this.state.errorInfo.componentStack}
                     </Text>
                   </>
@@ -98,22 +97,108 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Reset Button */}
             <Pressable
               onPress={this.handleReset}
-              className="bg-primary-600 py-4 rounded-xl items-center active:opacity-80"
+              style={({ pressed }) => [
+                styles.resetButton,
+                pressed && styles.resetButtonPressed
+              ]}
             >
-              <Text className="text-white font-semibold text-lg">
+              <Text style={styles.resetButtonText}>
                 Try Again
               </Text>
             </Pressable>
 
             {/* Help Text */}
-            <Text className="text-center text-gray-500 text-sm mt-4">
+            <Text style={styles.helpText}>
               If this problem persists, please restart the app.
             </Text>
           </View>
-        </SafeAreaView>
+        </View>
       );
     }
 
     return this.props.children;
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  errorIconContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  errorIcon: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#fee2e2',
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  errorEmoji: {
+    fontSize: 36,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  errorSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  errorDetails: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  errorLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#dc2626',
+    marginBottom: 8,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#1f2937',
+    marginBottom: 16,
+  },
+  stackTrace: {
+    fontSize: 12,
+    color: '#1f2937',
+    fontFamily: 'monospace',
+  },
+  resetButton: {
+    backgroundColor: '#2563eb',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  resetButtonPressed: {
+    opacity: 0.8,
+  },
+  resetButtonText: {
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 18,
+  },
+  helpText: {
+    textAlign: 'center',
+    color: '#6b7280',
+    fontSize: 14,
+    marginTop: 16,
+  },
+});

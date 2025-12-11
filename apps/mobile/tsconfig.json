@@ -4,6 +4,13 @@
     "strict": true,
     "jsx": "react-native",
     "baseUrl": ".",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
         "./*"
@@ -24,6 +31,9 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "global.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

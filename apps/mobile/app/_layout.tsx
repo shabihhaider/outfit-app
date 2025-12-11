@@ -1,9 +1,9 @@
-import "../global.css";
 import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import Toast from "react-native-toast-message";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 
@@ -34,10 +34,13 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
     return (
-        <ErrorBoundary>
-            <AuthProvider>
-                <RootLayoutContent />
-            </AuthProvider>
-        </ErrorBoundary>
+        <SafeAreaProvider>
+            <ErrorBoundary>
+                <AuthProvider>
+                    <RootLayoutContent />
+                </AuthProvider>
+            </ErrorBoundary>
+        </SafeAreaProvider>
     );
 }
+
