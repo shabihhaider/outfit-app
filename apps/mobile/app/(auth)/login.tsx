@@ -54,6 +54,7 @@ export default function LoginScreen() {
                     visibilityTime: 2000,
                 });
                 // Navigation is handled automatically by auth state change
+                router.replace('/(tabs)');
             } else {
                 Toast.show({
                     type: 'error',

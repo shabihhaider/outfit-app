@@ -9,7 +9,7 @@ import {
     ScrollView,
     Pressable,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Toast from 'react-native-toast-message';
@@ -59,6 +59,7 @@ export default function RegisterScreen() {
                 });
                 // If email verification required, result.error contains the message
                 // Navigation handled by auth state change if auto-confirmed
+                router.replace('/(tabs)');
             } else {
                 // Handle specific errors
                 if (result.error?.toLowerCase().includes('email')) {

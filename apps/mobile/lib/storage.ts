@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
+import { Platform } from 'react-native';
 
 export interface UploadResult {
     success: boolean;
@@ -19,24 +20,34 @@ export async function uploadAvatar(
     imageUri: string
 ): Promise<UploadResult> {
     try {
-        // Read file as base64
-        const base64 = await FileSystem.readAsStringAsync(imageUri, {
-            encoding: 'base64',
-        });
-
         // Determine file extension
         const fileExt = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
         const fileName = `${userId}/avatar.${fileExt}`;
         const contentType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
 
-        // Convert base64 to ArrayBuffer
-        const arrayBuffer = decode(base64);
+        let arrayBuffer: ArrayBuffer;
+        let finalContentType = contentType;
+
+        if (Platform.OS === 'web') {
+            // On web, fetch the blob/buffer directly to get the correct MIME type
+            const response = await fetch(imageUri);
+            const blob = await response.blob();
+            arrayBuffer = await blob.arrayBuffer();
+            finalContentType = blob.type || contentType; // Use blob type if available
+            console.log('[Storage] Web Upload Type:', finalContentType);
+        } else {
+            // On native, read as base64
+            const base64 = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: 'base64',
+            });
+            arrayBuffer = decode(base64);
+        }
 
         // Upload to Supabase Storage
         const { data, error } = await supabase.storage
             .from('avatars')
             .upload(fileName, arrayBuffer, {
-                contentType,
+                contentType: finalContentType,
                 upsert: true, // Overwrite if exists
             });
 
