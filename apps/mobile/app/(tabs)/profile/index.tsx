@@ -54,6 +54,8 @@ export default function ProfileScreen() {
                                 text1: 'Signed Out',
                                 text2: 'See you next time!',
                             });
+                            setIsSigningOut(false);
+                            router.replace('/(auth)/welcome');
                         } else {
                             Toast.show({
                                 type: 'error',
