@@ -64,7 +64,8 @@ create policy "Users can update own profile." on public.profiles
 
 ## Features Implemented
 *   **Authentication**: Login, Register, Forgot Password, Sign Out (with navigation redirects).
-*   **Profile Management**: View Profile, Edit details (Username, Bio, Name).
+*   **Deep Linking**: Configured scheme `outfitapp://` for password resets and redirection.
+*   **Profile Management**: View Profile, Edit details (Username, Bio, Name), Email Verification Banner.
 *   **Avatar Upload**: Supports Camera & Gallery.
     *   *Note*: Uses `fetch` for Web and `expo-file-system/legacy` for Mobile to handle upload compatibility.
 
@@ -75,4 +76,10 @@ npx expo start
 
 # Run on Web directly
 npx expo start --web
+
+## Testing Deep Links
+To test deep links on Android Emulator:
+```bash
+npx uri-scheme open outfitapp://reset-password --android
 ```
+
