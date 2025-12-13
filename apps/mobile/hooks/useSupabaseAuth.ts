@@ -96,20 +96,47 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
  */
 export function useEmailVerification(): {
   isVerified: boolean;
+  isLoading: boolean;
   checkVerification: () => Promise<boolean>;
+  resendVerification: () => Promise<boolean>;
 } {
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(true); // Default true to hide banner initially
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkVerification = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const verified = user?.email_confirmed_at !== null;
-    setIsVerified(verified);
-    return verified;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const verified = user?.email_confirmed_at !== null;
+      setIsVerified(verified);
+      return verified;
+    } catch (error) {
+      console.error('[useEmailVerification] Error:', error);
+      return true; // Default to true on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const resendVerification = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) return false;
+
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email,
+      });
+
+      return !error;
+    } catch (error) {
+      console.error('[useEmailVerification] Resend error:', error);
+      return false;
+    }
   }, []);
 
   useEffect(() => {
     checkVerification();
   }, [checkVerification]);
 
-  return { isVerified, checkVerification };
+  return { isVerified, isLoading, checkVerification, resendVerification };
 }

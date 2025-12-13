@@ -17,12 +17,16 @@ import { SafeView } from '../../../components/SafeView';
 import { Avatar } from '../../../components/profile';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useProfile } from '../../../hooks/useProfile';
+import { useEmailVerification } from '../../../hooks/useSupabaseAuth';
+import { VerificationBanner } from '../../../components/common/VerificationBanner';
 
 export default function ProfileScreen() {
     const { user, signOut, isLoading: authLoading } = useAuth();
     const { profile, isLoading: profileLoading, refetch } = useProfile();
+    const { isVerified, resendVerification } = useEmailVerification();
     const [isSigningOut, setIsSigningOut] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [bannerDismissed, setBannerDismissed] = useState(false);
 
     const isLoading = authLoading || profileLoading;
 
@@ -30,6 +34,23 @@ export default function ProfileScreen() {
         setRefreshing(true);
         await refetch();
         setRefreshing(false);
+    };
+
+    const handleResendVerification = async () => {
+        const success = await resendVerification();
+        if (success) {
+            Toast.show({
+                type: 'success',
+                text1: 'Email Sent',
+                text2: 'Check your inbox for verification link.',
+            });
+        } else {
+            Toast.show({
+                type: 'error',
+                text1: 'Failed',
+                text2: 'Could not send verification email.',
+            });
+        }
     };
 
     const handleEditProfile = () => {
@@ -84,6 +105,13 @@ export default function ProfileScreen() {
 
     return (
         <SafeView style={styles.container}>
+            {!isVerified && !bannerDismissed && user?.email && (
+                <VerificationBanner
+                    email={user.email}
+                    onResend={handleResendVerification}
+                    onDismiss={() => setBannerDismissed(true)}
+                />
+            )}
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
