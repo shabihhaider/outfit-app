@@ -9,6 +9,8 @@
  */
 export type WarmthLevel = 'ultralight' | 'light' | 'medium' | 'heavy' | 'very_heavy';
 
+
+
 /**
  * Weather resistance properties
  */
@@ -17,7 +19,7 @@ export type WeatherResistance = 'none' | 'water_resistant' | 'waterproof';
 /**
  * Source of classification (AI vs manual)
  */
-export type ClassificationSource = 'fashionclip' | 'vlm' | 'user';
+export type ClassificationSource = 'fashionclip' | 'vlm' | 'user' | 'manual';
 
 /**
  * Category types

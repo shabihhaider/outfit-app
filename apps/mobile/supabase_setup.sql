@@ -9,11 +9,11 @@ CREATE TABLE IF NOT EXISTS public.wardrobe_items (
   -- Basic Info
   name TEXT NOT NULL,
   category TEXT NOT NULL,
-  subcategory TEXT,
+  subcategory TEXT, -- Added
   
   -- Colors & Style
-  primary_color TEXT,
-  secondary_color TEXT,
+  primary_color TEXT,   -- Added
+  secondary_color TEXT, -- Added
   pattern TEXT,
   material TEXT,
   brand TEXT,
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS public.wardrobe_items (
   weather_resistance TEXT CHECK (weather_resistance IN ('none', 'water_resistant', 'waterproof')),
   
   -- Tags (arrays)
-  style_tags TEXT[] DEFAULT '{}',
-  occasion TEXT[] DEFAULT '{}',
+  style_tags TEXT[] DEFAULT '{}', -- Added
+  occasion TEXT[] DEFAULT '{}',   -- Added
   
   -- Images (Nullable as user might add item without image first)
   image_url TEXT,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.wardrobe_items (
   
   -- ⚠️ Classification tracking
   -- Tracks whether AI or user classified this item
-  classification_source TEXT CHECK (classification_source IN ('fashionclip', 'vlm', 'user', 'manual')),
+  classification_source TEXT CHECK (classification_source IN ('fashionclip', 'vlm', 'user', 'manual')), -- Added 'manual'
   ai_confidence DECIMAL(3,2),
   
   -- Usage tracking
@@ -54,6 +54,11 @@ CREATE TABLE IF NOT EXISTS public.wardrobe_items (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Ensure Bucket Exists (Apps often need this created explicitly)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('wardrobe-items', 'wardrobe-items', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_wardrobe_items_user_id ON public.wardrobe_items(user_id);

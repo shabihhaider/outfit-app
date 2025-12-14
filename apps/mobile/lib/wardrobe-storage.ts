@@ -1,6 +1,4 @@
 import { supabase } from './supabase';
-import * as FileSystem from 'expo-file-system';
-import { decode } from 'base64-arraybuffer';
 
 export interface UploadResult {
     success: boolean;
@@ -25,21 +23,16 @@ export async function uploadWardrobeImage(
             ? `${userId}/${itemId}.${fileExt}`
             : `${userId}/${timestamp}.${fileExt}`;
 
-        // Read file as base64
-        const base64 = await FileSystem.readAsStringAsync(imageUri, {
-            encoding: 'base64',
-        });
+        // 2. Read file as ArrayBuffer (More reliable than Blob for RN + Supabase)
+        const response = await fetch(imageUri);
+        const arrayBuffer = await response.arrayBuffer();
 
-        // Convert to ArrayBuffer
-        const arrayBuffer = decode(base64);
-        const contentType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
-
-        // Upload to Supabase Storage
+        // 3. Upload to Supabase
         const { data, error } = await supabase.storage
             .from('wardrobe-items')
             .upload(fileName, arrayBuffer, {
-                contentType,
-                upsert: true,
+                contentType: `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`, // Revert to reliable extension-based type for ArrayBuffer
+                upsert: false,
             });
 
         if (error) {

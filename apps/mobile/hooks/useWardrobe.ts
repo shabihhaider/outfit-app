@@ -21,6 +21,7 @@ export interface UseWardrobeReturn {
     addItem: (data: CreateWardrobeItemData) => Promise<{ success: boolean; item?: WardrobeItem; error?: string }>;
     updateItem: (id: string, data: UpdateWardrobeItemData) => Promise<{ success: boolean; error?: string }>;
     deleteItem: (id: string) => Promise<{ success: boolean; error?: string }>;
+    fetchItems: () => Promise<void>;
     getItem: (id: string) => Promise<WardrobeItem | null>;
 
     // Queries
@@ -310,6 +311,7 @@ export function useWardrobe(): UseWardrobeReturn {
         addItem,
         updateItem,
         deleteItem,
+        fetchItems, // Added fetchItems here as per instruction
         getItem,
         refetch: fetchItems,
         fetchByCategory,
